@@ -1,0 +1,20 @@
+lib/selenium_remote/ebin/make_api.beam : lib/selenium_remote/src/make_api.erl
+lib/selenium_remote/ebin/make_api.beam: Emakefile
+lib/selenium_remote/ebin/selenium.beam : lib/selenium_remote/src/selenium.erl
+lib/selenium_remote/ebin/selenium.beam: Emakefile
+lib/selenium_webdriver/ebin/mochijson2.beam : lib/selenium_webdriver/src/mochijson2.erl
+lib/selenium_webdriver/ebin/mochijson2.beam: Emakefile
+lib/selenium_webdriver/ebin/mochinum.beam : lib/selenium_webdriver/src/mochinum.erl
+lib/selenium_webdriver/ebin/mochinum.beam: Emakefile
+lib/selenium_webdriver/ebin/webdriver_remote.beam : lib/selenium_webdriver/src/webdriver_remote.erl
+lib/selenium_webdriver/ebin/webdriver_remote.beam: Emakefile
+lib/selenium_remote/test/selenium_api_tests.beam : lib/selenium_remote/test/selenium_api_tests.erl
+lib/selenium_remote/test/selenium_api_tests.beam: Emakefile
+lib/selenium_remote/test/selenium_session_tests.beam : lib/selenium_remote/test/selenium_session_tests.erl
+lib/selenium_remote/test/selenium_session_tests.beam: Emakefile
+lib/selenium_remote/test/selenium_tests.beam : lib/selenium_remote/test/selenium_tests.erl
+lib/selenium_remote/test/selenium_tests.beam: Emakefile
+lib/selenium_remote/test/test_generator.beam : lib/selenium_remote/test/test_generator.erl
+lib/selenium_remote/test/test_generator.beam: Emakefile
+lib/selenium_webdriver/test/webdriver_remote_tests.beam : lib/selenium_webdriver/test/webdriver_remote_tests.erl
+lib/selenium_webdriver/test/webdriver_remote_tests.beam: Emakefile

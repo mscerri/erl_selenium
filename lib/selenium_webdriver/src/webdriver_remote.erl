@@ -9,7 +9,7 @@
 -type(abstract_session() :: {string(), integer(), any()}).
 -type(command_result() :: {ok, term()}).
 
--type(capabilities() :: [{browserName, firefox|internet_explorer|htmlunit|iphone|chrome} |
+-type(capabilities() :: [{browserName, firefox|'internet explorer'|htmlunit|iphone|chrome} |
 			 {version, string()} |
 			 {javascriptEnabled, true|false} |
 			 {platform, 'WINDOWS'|'XP'|'VISTA'|'MAC'|'LINUX'|'UNIX'|'ANY'}]).
@@ -30,11 +30,14 @@
 -export([available_engines/1]).
 -export([active_engine/1]).
 -export([frame/2]).
+-export([find_element/3]).
+-export([find_element/4]).
 -export([find_elements/3]).
 -export([find_elements/4]).
 -export([get_attribute/3]).
 -export([click/2]).
--export([value/2]).
+-export([value/3]).
+-export([keys/2]).
 -export([submit/2]).
 -export([text/2]).
 -export([title/1]).
@@ -143,6 +146,36 @@ frame(Session, Frame)  ->
     post(path(Session, "frame"), 
 	 to_json([{<<"id">>, Body}])).
 
+-spec(find_element(abstract_session(), atom()|binary(), string()) -> command_result()).
+find_element(Session, Using, Value) ->
+    Res = post(path(Session, "element"), 
+	       to_json([{<<"using">>, Using},
+			{<<"value">>, list_to_binary(Value)}])),
+    case Res of
+	{error, {7, _}} ->
+	    {error, {7, no_such_element}};
+	{ok, E} ->
+	    {ok, webelement_id(E) };
+	Other ->
+	    io:format(user,"~p~n",[Other]),
+	    Other
+    end.
+
+-spec(find_element(abstract_session(), string(), atom()|binary(), string()) -> command_result()).
+find_element(Session, Id, Using, Value) ->
+    Res = post(path(Session, "element/"++ Id ++ "/element"), 
+	       to_json([{<<"using">>, Using},
+			{<<"value">>, list_to_binary(Value)}])),
+    case Res of
+	{error, {7, _}} ->
+	    {error, {7, no_such_element}};
+	{ok, List} ->
+	    {ok, [webelement_id(E) || E <- List] };
+	Other ->
+	    io:format(user,"~p~n",[Other]),
+	    Other
+    end.
+
 -spec(find_elements(abstract_session(), atom()|binary(), string()) -> command_result()).
 find_elements(Session, Using, Value) ->
     Res = post(path(Session, "elements"), 
@@ -199,12 +232,17 @@ text(Session, Id) ->
 title(Session) ->
     request(get, path(Session, "title"), []).
 
--spec(value(abstract_session(), binary()|string()) ->
-	      command_result()).
-value(Session, Id) when is_binary(Id) ->
-    value(Session, binary_to_list(Id));
-value(Session, Id) ->
-    request(get, path(Session, "element/" ++ Id ++ "/value"), []).
+-spec(value(abstract_session(), string()|binary(), string()) -> command_result()).
+value(Session, Id, Value) when is_binary(Id) ->
+	value(Session, binary_to_list(Id), Value);
+value(Session, Id, Value) when is_binary(Value) ->
+	post(path(Session, "element/" ++ Id ++ "/value"), to_json([{<<"value">>, [Value]}]));
+value(Session, Id, Value) ->
+	post(path(Session, "element/" ++ Id ++ "/value"), to_json([{<<"value">>, string_to_list(Value)}])).
+
+-spec(keys(abstract_session(), binary()) -> command_result()).
+keys(Session, Value) ->
+	post(path(Session, "keys"), to_json([{<<"value">>, [Value]}])).
 
 -spec(switch_to_window(abstract_session(), string()) ->
 	     command_result()).
@@ -346,6 +384,9 @@ decode_response(List) ->
 	    end
     end.
 
-
 status_codes() ->
     [7,8,9,10,11,12,13,15,17,19,23,24,25,28].
+
+string_to_list([]) -> [];
+string_to_list([H|T]) ->
+	[<<H>>] ++ string_to_list(T).
